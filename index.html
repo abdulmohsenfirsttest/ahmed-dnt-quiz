@@ -23,6 +23,8 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0;
 .card-ahmed   .card-name { color: #60a5fa; }
 .card-buhaimed { background: #0f1f2e; border-color: #06b6d4; }
 .card-buhaimed .card-name { color: #22d3ee; }
+.card-abdulmohsen { background: #1a0f2e; border-color: #a855f7; }
+.card-abdulmohsen .card-name { color: #c084fc; }
 .card-coming  { background: #1a1a2e; border-color: #334155; cursor: default; }
 .card-coming  .card-name { color: #475569; }
 .card-coming:hover { transform: none; box-shadow: none; }
@@ -133,6 +135,13 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0;
       <div class="card-icon">🏭</div>
     </div>
 
+    <div class="quiz-card card-abdulmohsen" onclick="openQuiz('abdulmohsen')">
+      <div class="card-label">Questions Bank</div>
+      <div class="card-name">Abdulmohsen Quiz</div>
+      <div class="card-sub">Easy · Medium · Hard</div>
+      <div class="card-icon">🧪</div>
+    </div>
+
     <div class="quiz-card card-coming">
       <div class="card-label">Coming Soon</div>
       <div class="card-name">New Quiz</div>
@@ -204,6 +213,16 @@ const AHMED_MEDIUM = [
 ];
 const AHMED_HARD = [
   // Ahmed's DNT Hard questions — to be added
+];
+
+const ABDULMOHSEN_EASY = [
+  // Abdulmohsen Easy questions — to be added
+];
+const ABDULMOHSEN_MEDIUM = [
+  // Abdulmohsen Medium questions — to be added
+];
+const ABDULMOHSEN_HARD = [
+  // Abdulmohsen Hard questions — to be added
 ];
 
 const BUHAIMED_EASY = [
@@ -434,6 +453,15 @@ const QUIZZES = {
     easy:   BUHAIMED_EASY,
     medium: BUHAIMED_MEDIUM,
     hard:   BUHAIMED_HARD
+  },
+  abdulmohsen: {
+    icon: '🧪',
+    title: 'Abdulmohsen Quiz',
+    sub: 'Questions Bank',
+    color: '#c084fc',
+    easy:   ABDULMOHSEN_EASY,
+    medium: ABDULMOHSEN_MEDIUM,
+    hard:   ABDULMOHSEN_HARD
   }
 };
 
