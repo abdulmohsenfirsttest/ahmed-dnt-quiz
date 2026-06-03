@@ -3,125 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAC-NAC Quiz — BUHAIMED</title>
+<title>Quiz Portal</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
 
-  /* WELCOME SCREEN */
-  #welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; text-align: center; }
-  #welcome h1 { font-size: 2.4rem; font-weight: 800; color: #38bdf8; letter-spacing: -1px; margin-bottom: 6px; }
-  #welcome .subtitle { color: #94a3b8; font-size: 1rem; margin-bottom: 40px; }
-  .mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 480px; margin-bottom: 32px; }
-  .mode-btn { padding: 22px 16px; border: 2px solid transparent; border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: 700; transition: all .2s; }
-  .mode-btn:hover { transform: translateY(-2px); }
-  .mode-btn .count { font-size: .78rem; font-weight: 400; opacity: .75; margin-top: 4px; display: block; }
-  .easy   { background: #14532d; border-color: #22c55e; color: #86efac; }
-  .easy:hover   { background: #166534; }
-  .medium { background: #713f12; border-color: #f59e0b; color: #fde68a; }
-  .medium:hover { background: #78350f; }
-  .hard   { background: #7f1d1d; border-color: #ef4444; color: #fca5a5; }
-  .hard:hover   { background: #831c1c; }
-  .all    { background: #1e1b4b; border-color: #818cf8; color: #c7d2fe; }
-  .all:hover    { background: #23206e; }
+/* ── PORTAL ─────────────────────────────────────── */
+#portal { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 20px; text-align: center; }
+#portal h1 { font-size: 2.2rem; font-weight: 900; color: #e2e8f0; margin-bottom: 6px; }
+#portal .tagline { color: #64748b; font-size: .95rem; margin-bottom: 48px; }
+.quiz-cards { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 420px; }
+.quiz-card { border-radius: 18px; padding: 28px 24px; cursor: pointer; border: 2px solid; text-align: left; transition: transform .2s, box-shadow .2s; position: relative; overflow: hidden; }
+.quiz-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.quiz-card .card-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; opacity: .7; }
+.quiz-card .card-name { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+.quiz-card .card-sub { font-size: .85rem; opacity: .65; }
+.quiz-card .card-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 3rem; opacity: .25; }
+.card-ahmed   { background: #0c1f3f; border-color: #3b82f6; }
+.card-ahmed   .card-name { color: #60a5fa; }
+.card-buhaimed { background: #0f1f2e; border-color: #06b6d4; }
+.card-buhaimed .card-name { color: #22d3ee; }
+.card-coming  { background: #1a1a2e; border-color: #334155; cursor: default; }
+.card-coming  .card-name { color: #475569; }
+.card-coming:hover { transform: none; box-shadow: none; }
 
-  /* QUIZ SCREEN */
-  #quiz { display: none; max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
-  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .back-btn { background: none; border: 1px solid #334155; color: #94a3b8; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: .85rem; }
-  .back-btn:hover { border-color: #64748b; color: #e2e8f0; }
-  .progress-wrap { flex: 1; margin: 0 14px; }
-  .progress-bar { background: #1e293b; border-radius: 99px; height: 8px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width .3s; }
-  .q-counter { font-size: .82rem; color: #64748b; white-space: nowrap; }
-  .score-badge { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 6px 14px; font-size: .85rem; color: #94a3b8; }
-  .score-badge span { color: #38bdf8; font-weight: 700; }
+/* ── SHARED: QUIZ HOME ──────────────────────────── */
+#quiz-home { display: none; max-width: 500px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+.qh-back { background: none; border: 1px solid #334155; color: #94a3b8; padding: 7px 16px; border-radius: 8px; cursor: pointer; font-size: .85rem; margin-bottom: 32px; }
+.qh-back:hover { border-color: #64748b; color: #e2e8f0; }
+.qh-icon { font-size: 3.5rem; margin-bottom: 12px; }
+.qh-title { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+.qh-sub { color: #64748b; font-size: .9rem; margin-bottom: 36px; }
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mode-btn { padding: 20px 14px; border: 2px solid transparent; border-radius: 14px; cursor: pointer; font-size: .95rem; font-weight: 700; transition: all .2s; }
+.mode-btn:hover { transform: translateY(-2px); }
+.mode-btn .mc { font-size: .75rem; font-weight: 400; opacity: .7; margin-top: 4px; display: block; }
+.m-easy   { background: #14532d; border-color: #22c55e; color: #86efac; }
+.m-medium { background: #713f12; border-color: #f59e0b; color: #fde68a; }
+.m-hard   { background: #7f1d1d; border-color: #ef4444; color: #fca5a5; }
+.m-all    { background: #1e1b4b; border-color: #818cf8; color: #c7d2fe; }
 
-  .q-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 28px 24px; margin-bottom: 18px; }
-  .diff-tag { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; margin-bottom: 14px; }
-  .tag-easy   { background: #14532d; color: #86efac; }
-  .tag-medium { background: #713f12; color: #fde68a; }
-  .tag-hard   { background: #7f1d1d; color: #fca5a5; }
-  .q-text { font-size: 1.05rem; line-height: 1.55; color: #e2e8f0; }
+/* ── QUIZ SCREEN ────────────────────────────────── */
+#quiz { display: none; max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+.top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.back-btn { background: none; border: 1px solid #334155; color: #94a3b8; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: .85rem; }
+.back-btn:hover { border-color: #64748b; color: #e2e8f0; }
+.progress-wrap { flex: 1; min-width: 100px; }
+.progress-bar { background: #1e293b; border-radius: 99px; height: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width .3s; }
+.q-counter { font-size: .82rem; color: #64748b; white-space: nowrap; }
+.score-badge { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 6px 14px; font-size: .85rem; color: #94a3b8; white-space: nowrap; }
+.score-badge span { color: #38bdf8; font-weight: 700; }
+.q-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 28px 24px; margin-bottom: 18px; }
+.diff-tag { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; margin-bottom: 14px; }
+.tag-easy   { background: #14532d; color: #86efac; }
+.tag-medium { background: #713f12; color: #fde68a; }
+.tag-hard   { background: #7f1d1d; color: #fca5a5; }
+.q-text { font-size: 1.05rem; line-height: 1.55; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn { background: #0f172a; border: 2px solid #334155; border-radius: 12px; padding: 13px 18px; text-align: left; cursor: pointer; font-size: .95rem; color: #cbd5e1; transition: all .15s; display: flex; align-items: flex-start; gap: 12px; }
+.opt-btn .ol { font-weight: 700; color: #64748b; min-width: 18px; }
+.opt-btn:hover:not(:disabled) { border-color: #38bdf8; color: #e2e8f0; background: #162032; }
+.opt-btn.correct { border-color: #22c55e; background: #052e16; color: #86efac; }
+.opt-btn.correct .ol { color: #22c55e; }
+.opt-btn.wrong   { border-color: #ef4444; background: #2d0707; color: #fca5a5; }
+.opt-btn.wrong .ol { color: #ef4444; }
+.opt-btn:disabled { cursor: default; }
+.feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: .9rem; font-weight: 600; display: none; }
+.feedback.show { display: block; }
+.feedback.ok  { background: #052e16; border: 1px solid #22c55e; color: #86efac; }
+.feedback.err { background: #2d0707; border: 1px solid #ef4444; color: #fca5a5; }
+.next-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 8px; display: none; }
+.next-btn:hover { opacity: .9; }
+.next-btn.show { display: block; }
 
-  .options { display: flex; flex-direction: column; gap: 10px; }
-  .opt-btn { background: #0f172a; border: 2px solid #334155; border-radius: 12px; padding: 13px 18px; text-align: left; cursor: pointer; font-size: .95rem; color: #cbd5e1; transition: all .15s; display: flex; align-items: flex-start; gap: 12px; }
-  .opt-btn .opt-letter { font-weight: 700; color: #64748b; min-width: 18px; }
-  .opt-btn:hover:not(:disabled) { border-color: #38bdf8; color: #e2e8f0; background: #162032; }
-  .opt-btn.correct { border-color: #22c55e; background: #052e16; color: #86efac; }
-  .opt-btn.correct .opt-letter { color: #22c55e; }
-  .opt-btn.wrong   { border-color: #ef4444; background: #2d0707; color: #fca5a5; }
-  .opt-btn.wrong .opt-letter { color: #ef4444; }
-  .opt-btn:disabled { cursor: default; }
+/* ── RESULTS ────────────────────────────────────── */
+#results { display: none; max-width: 640px; margin: 0 auto; padding: 40px 20px 60px; text-align: center; }
+#results h2 { font-size: 2rem; font-weight: 800; color: #38bdf8; margin-bottom: 8px; }
+.result-pct { font-size: 5rem; font-weight: 900; line-height: 1; margin: 24px 0 8px; }
+.result-label { font-size: 1rem; color: #94a3b8; margin-bottom: 32px; }
+.result-stats { display: flex; gap: 14px; justify-content: center; margin-bottom: 36px; flex-wrap: wrap; }
+.stat-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px 22px; min-width: 90px; }
+.stat-box .val { font-size: 1.8rem; font-weight: 800; }
+.stat-box .lbl { font-size: .72rem; color: #64748b; margin-top: 2px; }
+.green { color: #22c55e; } .red { color: #ef4444; } .blue { color: #38bdf8; }
+.action-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 36px; }
+.action-btn { padding: 12px 22px; border-radius: 10px; font-size: .9rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all .15s; }
+.btn-primary   { background: #0c4a6e; border-color: #38bdf8; color: #38bdf8; }
+.btn-primary:hover { background: #075985; }
+.btn-secondary { background: #1e293b; border-color: #334155; color: #94a3b8; }
+.btn-secondary:hover { border-color: #64748b; color: #e2e8f0; }
+.review-title { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; margin-bottom: 14px; text-align: left; }
+.review-item { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; text-align: left; }
+.review-item.r-correct { border-color: #22c55e33; }
+.review-item.r-wrong   { border-color: #ef444433; }
+.review-q { font-size: .88rem; color: #cbd5e1; margin-bottom: 6px; }
+.review-answers { font-size: .8rem; display: flex; flex-direction: column; gap: 3px; }
+.rv-wrong { color: #ef4444; } .rv-correct-a { color: #22c55e; }
+.rv-ok { color: #22c55e; }
+.r-icon { float: right; }
 
-  .feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: .9rem; font-weight: 600; display: none; }
-  .feedback.show { display: block; }
-  .feedback.ok  { background: #052e16; border: 1px solid #22c55e; color: #86efac; }
-  .feedback.err { background: #2d0707; border: 1px solid #ef4444; color: #fca5a5; }
-
-  .next-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 6px; display: none; transition: opacity .2s; }
-  .next-btn:hover { opacity: .9; }
-  .next-btn.show { display: block; }
-
-  /* RESULTS SCREEN */
-  #results { display: none; max-width: 640px; margin: 0 auto; padding: 40px 20px 60px; text-align: center; }
-  #results h2 { font-size: 2rem; font-weight: 800; color: #38bdf8; margin-bottom: 8px; }
-  .result-pct { font-size: 5rem; font-weight: 900; line-height: 1; margin: 24px 0 8px; }
-  .result-label { font-size: 1.1rem; color: #94a3b8; margin-bottom: 32px; }
-  .result-stats { display: flex; gap: 16px; justify-content: center; margin-bottom: 36px; flex-wrap: wrap; }
-  .stat-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px 24px; min-width: 100px; }
-  .stat-box .val { font-size: 1.8rem; font-weight: 800; }
-  .stat-box .lbl { font-size: .75rem; color: #64748b; margin-top: 2px; }
-  .green { color: #22c55e; } .red { color: #ef4444; } .blue { color: #38bdf8; }
-
-  .action-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
-  .action-btn { padding: 12px 24px; border-radius: 10px; font-size: .95rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all .15s; }
-  .btn-primary { background: #0c4a6e; border-color: #38bdf8; color: #38bdf8; }
-  .btn-primary:hover { background: #075985; }
-  .btn-secondary { background: #1e293b; border-color: #334155; color: #94a3b8; }
-  .btn-secondary:hover { border-color: #64748b; color: #e2e8f0; }
-
-  /* REVIEW */
-  .review-title { font-size: 1.2rem; font-weight: 700; color: #e2e8f0; margin-bottom: 16px; text-align: left; }
-  .review-item { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; text-align: left; }
-  .review-item.r-correct { border-color: #22c55e22; }
-  .review-item.r-wrong   { border-color: #ef444422; }
-  .review-q { font-size: .9rem; color: #cbd5e1; margin-bottom: 8px; }
-  .review-answers { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; }
-  .review-your { color: #ef4444; } .review-your.ok { color: #22c55e; }
-  .review-correct { color: #22c55e; }
-  .review-icon { float: right; font-size: 1rem; margin-top: -2px; }
-
-  @media(max-width:480px) {
-    #welcome h1 { font-size: 1.8rem; }
-    .mode-grid { grid-template-columns: 1fr; }
-    .result-pct { font-size: 3.5rem; }
-  }
+@media(max-width:480px) {
+  #portal h1 { font-size: 1.7rem; }
+  .mode-grid { grid-template-columns: 1fr; }
+  .result-pct { font-size: 3.5rem; }
+  .top-bar { gap: 6px; }
+}
 </style>
 </head>
 <body>
 
-<!-- WELCOME -->
-<div id="welcome">
-  <h1>SAC-NAC Quiz</h1>
-  <p class="subtitle">BUHAIMED — Questions Bank</p>
-  <div class="mode-grid">
-    <button class="mode-btn easy"   onclick="startQuiz('easy')">Easy<span class="count">66 Questions</span></button>
-    <button class="mode-btn medium" onclick="startQuiz('medium')">Medium<span class="count">67 Questions</span></button>
-    <button class="mode-btn hard"   onclick="startQuiz('hard')">Hard<span class="count">66 Questions</span></button>
-    <button class="mode-btn all"    onclick="startQuiz('all')">All<span class="count">199 Questions</span></button>
+<!-- ═══════════ PORTAL ═══════════ -->
+<div id="portal">
+  <h1>Quiz Portal</h1>
+  <p class="tagline">Select a quiz to begin</p>
+  <div class="quiz-cards">
+
+    <div class="quiz-card card-ahmed" onclick="openQuiz('ahmed')">
+      <div class="card-label">DNT Unit Operations</div>
+      <div class="card-name">Ahmed Quiz</div>
+      <div class="card-sub">Easy · Medium · Hard</div>
+      <div class="card-icon">⚗️</div>
+    </div>
+
+    <div class="quiz-card card-buhaimed" onclick="openQuiz('buhaimed')">
+      <div class="card-label">SAC-NAC Questions Bank</div>
+      <div class="card-name">Buhaimed Quiz</div>
+      <div class="card-sub">66 Easy · 67 Medium · 66 Hard</div>
+      <div class="card-icon">🏭</div>
+    </div>
+
+    <div class="quiz-card card-coming">
+      <div class="card-label">Coming Soon</div>
+      <div class="card-name">New Quiz</div>
+      <div class="card-sub">Another subject — stay tuned</div>
+      <div class="card-icon">🔒</div>
+    </div>
+
   </div>
 </div>
 
-<!-- QUIZ -->
+<!-- ═══════════ QUIZ HOME ═══════════ -->
+<div id="quiz-home">
+  <button class="qh-back" onclick="goPortal()">← Back</button>
+  <div class="qh-icon" id="qhIcon"></div>
+  <div class="qh-title" id="qhTitle"></div>
+  <div class="qh-sub" id="qhSub"></div>
+  <div class="mode-grid">
+    <button class="mode-btn m-easy"   onclick="startQuiz('easy')">Easy<span class="mc" id="cntEasy"></span></button>
+    <button class="mode-btn m-medium" onclick="startQuiz('medium')">Medium<span class="mc" id="cntMedium"></span></button>
+    <button class="mode-btn m-hard"   onclick="startQuiz('hard')">Hard<span class="mc" id="cntHard"></span></button>
+    <button class="mode-btn m-all"    onclick="startQuiz('all')">All<span class="mc" id="cntAll"></span></button>
+  </div>
+</div>
+
+<!-- ═══════════ QUIZ SCREEN ═══════════ -->
 <div id="quiz">
   <div class="top-bar">
-    <button class="back-btn" onclick="goHome()">← Home</button>
-    <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="pFill" style="width:0%"></div></div>
-    </div>
+    <button class="back-btn" onclick="backToHome()">← Home</button>
+    <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="pFill" style="width:0%"></div></div></div>
     <div class="q-counter" id="qCounter">1 / 1</div>
-    <div class="score-badge" style="margin-left:10px">Score: <span id="scoreDisp">0</span></div>
+    <div class="score-badge">Score: <span id="scoreDisp">0</span></div>
   </div>
   <div class="q-card">
     <div class="diff-tag" id="diffTag"></div>
@@ -132,7 +174,7 @@
   <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
 </div>
 
-<!-- RESULTS -->
+<!-- ═══════════ RESULTS ═══════════ -->
 <div id="results">
   <h2>Quiz Complete!</h2>
   <div class="result-pct" id="resPct"></div>
@@ -143,15 +185,28 @@
     <div class="stat-box"><div class="val blue"  id="resTotal"></div><div class="lbl">Total</div></div>
   </div>
   <div class="action-row">
-    <button class="action-btn btn-primary"   onclick="retryQuiz()">Retry Same Mode</button>
-    <button class="action-btn btn-secondary" onclick="goHome()">Change Mode</button>
+    <button class="action-btn btn-primary"   onclick="retryQuiz()">Retry</button>
+    <button class="action-btn btn-secondary" onclick="backToHome()">Change Mode</button>
+    <button class="action-btn btn-secondary" onclick="goPortal()">Portal</button>
   </div>
   <div class="review-title">Answer Review</div>
   <div id="reviewList"></div>
 </div>
 
 <script>
-const EASY = [
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+const AHMED_EASY = [
+  // Ahmed's DNT Easy questions — to be added
+];
+const AHMED_MEDIUM = [
+  // Ahmed's DNT Medium questions — to be added
+];
+const AHMED_HARD = [
+  // Ahmed's DNT Hard questions — to be added
+];
+
+const BUHAIMED_EASY = [
   {q:"What is the purpose of the Nitric acid Concentration section?",o:["To Produce 88% Nitric Acid","To Produce 98% Nitric Acid","To Produce 100% Nitric Acid","None of the above"],a:1},
   {q:"Water should not be added to the acid containing system.",o:["TRUE","FALSE"],a:0},
   {q:"Non-Condensables in the NAC exit the top of which exchanger?",o:["E-2314","E-2324","E-2331","None of the above"],a:2},
@@ -171,27 +226,27 @@ const EASY = [
   {q:"How many preheaters are installed in NAC?",o:["2","4","3","None of the above"],a:1},
   {q:"How many PRODUCT COOLERS (NA98) are installed in NAC?",o:["2","4","3","None of the above"],a:0},
   {q:"What type of level devices are used to measure the level in V-2345?",o:["Redundant gamma ray level devices","Redundant radar level devices","Redundant paddle level devices","Differential Pressure Devices"],a:1},
-  {q:"What is the cooling medium used to cool the overhead stream being received from T-2321 into E-2324?",o:["Demineralized water","Cooling Water","Chilled Water","None of above"],a:1},
+  {q:"What is the cooling medium used to cool the overhead stream from T-2321 into E-2324?",o:["Demineralized water","Cooling Water","Chilled Water","None of above"],a:1},
   {q:"Sulfuric acid 85% from NAC unit is exported to",o:["V-2213","V-2008","V-2006AB","V-2009AB","None of Above"],a:3},
   {q:"What type of pump is P-2340?",o:["Direct mechanical driven pump","Piston driven pump","Magnetic drive pump","None of the above"],a:2},
   {q:"What is the purpose of T-2311?",o:["Separate Sulfuric acid from water","Separate NOX gases from 65% Nitric acid","Concentrate Nitric with the help of sulfuric acid","None of the Above"],a:2},
-  {q:"Which of the following hazardous and toxic chemicals are found in the NAC UNIT?",o:["Nitric acid 65%","Sulfuric acid 98%","Caustic Soda","Sulfuric acid 85%","All of the Above"],a:4},
+  {q:"Which hazardous and toxic chemicals are found in the NAC UNIT?",o:["Nitric acid 65%","Sulfuric acid 98%","Caustic Soda","Sulfuric acid 85%","All of the Above"],a:4},
   {q:"How many evaporators are installed to concentrate Sulfuric acid to 85%?",o:["1","2","3","4"],a:3},
   {q:"What is the type of P-2360A/B?",o:["Vertical Multistage","Vertical Single stage","Reciprocating","None of above"],a:0},
   {q:"Sulfuric acid 85% is fed to T-2311 from",o:["Side","Top","Bottom","None of above"],a:1},
   {q:"How many vertical evaporators are there in NAC unit?",o:["1","2","3","4"],a:0},
   {q:"What type of level transmitters are located on T-2360?",o:["Capacitance","Radar","Guided Radar","Differential Pressure"],a:0},
   {q:"It is not possible to Operate only one train of NAC.",o:["TRUE","FALSE"],a:1},
-  {q:"Which of the pumps listed below are with on line greasing system in DNTSAC unit?",o:["P-2213","P-2214","P-2244","All the above","Only A and B"],a:3},
+  {q:"Which pumps are with on line greasing system in DNTSAC unit?",o:["P-2213","P-2214","P-2244","All the above","Only A and B"],a:3},
   {q:"What is the Pressure of steam coming to D-2850?",o:["3.5 BARG","6 BARG","21 BARG","42 BARG","None of the above"],a:3},
   {q:"How many preheaters are installed in SAC?",o:["1","2","3","4"],a:3},
   {q:"E-2213 uses which cooling medium?",o:["Chilled water","Condensate","Cooling water","Nitric acid","None of above"],a:2},
   {q:"What is the Material of Construction of T-2250?",o:["Low Temperature Carbon Steel","Alloy 20","Carbon Steel","SS 316L"],a:0},
   {q:"Nitric acid from V-2107 is concentrated in",o:["T-2201","T-2240","T-2250","None of above"],a:3},
   {q:"What type of Heat exchanger is E-2213?",o:["Shell and Tube","Plate type","U-tube","Double pipe"],a:1},
-  {q:"What is the cooling media used in jacket to cool down body of B-7911?",o:["LP Steam","Chilled Water","Chilled MCB","Ambient MCB"],a:3},
-  {q:"What is the media used in jacket to maintain temperature in V-2244AB?",o:["Condensate","Hot water","Warm water","Steam"],a:2},
-  {q:"What is the Cooling fluid that is used to remove the heat of compression of C-2251AB?",o:["Cooling water","Chilled Water","Ambient air","None of ABOVE"],a:0},
+  {q:"What cooling media is used in jacket to cool down body of B-7911?",o:["LP Steam","Chilled Water","Chilled MCB","Ambient MCB"],a:3},
+  {q:"What media is used in jacket to maintain temperature in V-2244AB?",o:["Condensate","Hot water","Warm water","Steam"],a:2},
+  {q:"What Cooling fluid removes the heat of compression of C-2251AB?",o:["Cooling water","Chilled Water","Ambient air","None of ABOVE"],a:0},
   {q:"What is the type of Compressor C-2251AB?",o:["Liquid ring compressor","Centrifugal Compressor","Screw Compressor","None of ABOVE"],a:2},
   {q:"How do we know if phosgene is in the exhaust of the elephant trunk?",o:["Analyzer Detects","Hand held LEL meter","Smoke alarm sounds","TOC detector"],a:0},
   {q:"Which Equipments are containing by PU-2243AB?",o:["P-2243A/B, Sealing system, MNT dozing","Only sealing system","Only vacuum pumps","Spare valves"],a:0},
@@ -200,7 +255,7 @@ const EASY = [
   {q:"T-2240 NAPC column is working under vacuum.",o:["TRUE","FALSE"],a:0},
   {q:"P-2205A Type is",o:["Diaphragm pump","Centrifugal pump","Vacuum pump","None of the above"],a:0},
   {q:"Cyclone separator C2251 is used to remove",o:["Dust from Air","Small Sump with Level measurement","Vacuum truck","Liquid collection tank"],a:0},
-  {q:"What does Con-7901 (Dome) have for to monitor the operation personal activity?",o:["Radio","Dome entry permit","Several Cameras are located inside the dome","None of the above"],a:2},
+  {q:"What does Con-7901 (Dome) have to monitor operation personal activity?",o:["Radio","Dome entry permit","Several Cameras located inside the dome","None of the above"],a:2},
   {q:"Any Person entering the NAC SAC must use PPES — they must wear:",o:["Chemical suit only","Monogoggles and faceshield only","Rubber shoes only","All of the above"],a:3},
   {q:"What is used to neutralize a SMALL acid spill in NAC SAC?",o:["Sodium Carbonate powder","Sodium carbonate solution","Sodium Hydroxide","Pottasium Carbonate"],a:0},
   {q:"DM water is used to absorb NOX in T-2250.",o:["TRUE","FALSE"],a:0},
@@ -220,9 +275,9 @@ const EASY = [
   {q:"Concentration of sulfuric acid in Spent Acid feed is",o:["87%","98%","57%","72%"],a:3}
 ];
 
-const MEDIUM = [
-  {q:"Why must the heat tracing be maintained in the organics (DNT/MNT) containing system?",o:["To prevent freezing of toluene","To prevent freezing of MNT","To prevent freezing of DNT","All of the above","None of the above"],a:2},
-  {q:"Which of the following hazardous chemicals can be found within the SAC BUILDING?",o:["Nitric Acid 98%","Mixed acid","Sulfuric acid 88%","Spent sulfuric acid","All of the above"],a:4},
+const BUHAIMED_MEDIUM = [
+  {q:"Why must heat tracing be maintained in the organics (DNT/MNT) containing system?",o:["To prevent freezing of toluene","To prevent freezing of MNT","To prevent freezing of DNT","All of the above","None of the above"],a:2},
+  {q:"Which hazardous chemicals can be found within the SAC BUILDING?",o:["Nitric Acid 98%","Mixed acid","Sulfuric acid 88%","Spent sulfuric acid","All of the above"],a:4},
   {q:"Niobium tubes are used in (set 1)",o:["E-2314","E-2213","E-2345","E-2300"],a:0},
   {q:"Tantalum tubes are used in",o:["E-2314","E-2311","E-2345","E-2300","E-2350"],a:1},
   {q:"Safety shower is available on every floor of NAC.",o:["TRUE","FALSE"],a:0},
@@ -278,10 +333,10 @@ const MEDIUM = [
   {q:"MNT is used to prevent freezing of DNT during Cooling.",o:["TRUE","FALSE"],a:0},
   {q:"MNT SPRAY is used in ___ places.",o:["2","4","5","6"],a:2},
   {q:"E-2241 TUBE MATERIAL is",o:["Tantalum","SS304L","Silicon Carbide","Niobium"],a:1},
-  {q:"All temporary nitrogen connections from the utility drops to the process do not require back flow prevention.",o:["TRUE","FALSE"],a:1},
+  {q:"All temporary nitrogen connections from utility drops to process do not require back flow prevention.",o:["TRUE","FALSE"],a:1},
   {q:"T-2240 Top part is of SS 304L and bottom part is of Glass lined steel.",o:["TRUE","FALSE"],a:0},
-  {q:"Breathing Air header configuration at PMDI Battery limit on East west piperack",o:["Has automated block, flowmeter and bypass of flowmeter","Has single block and bleed valve, flowmeter and bypass","Has double block and bleed valve, flowmeter and bypass","Has flowmeter and bypass of flowmeter only"],a:2},
-  {q:"The Breathing air supply pressure from the ISS is monitored and alarms on low & low low pressure in the control room.",o:["TRUE","FALSE"],a:0},
+  {q:"Breathing Air header configuration at PMDI Battery limit on East west piperack",o:["Has automated block, flowmeter and bypass","Has single block and bleed valve, flowmeter and bypass","Has double block and bleed valve, flowmeter and bypass","Has flowmeter and bypass of flowmeter only"],a:2},
+  {q:"Breathing air supply pressure from the ISS is monitored and alarms on low & low low in the control room.",o:["TRUE","FALSE"],a:0},
   {q:"V-2242",o:["Separates acidic condensate and organics","Separates Nitric acid and sulfuric acid","Separates organics and sulfuric acid","None of the Above"],a:0},
   {q:"Gravity separation is used for V-2242.",o:["FALSE","TRUE"],a:1},
   {q:"V-2204 separates",o:["DILUTE Nitric acid and organics","Nitric acid and sulfuric acid","Organics and sulfuric acid","None of the Above"],a:0},
@@ -291,7 +346,7 @@ const MEDIUM = [
   {q:"What is concentration of T-2360 bottom acid?",o:["20%","30%","40%","45%"],a:3}
 ];
 
-const HARD = [
+const BUHAIMED_HARD = [
   {q:"What is the primary function of the gas detectors in SAC unit?",o:["To detect NOX in the building","To Check Performance of NAC","To detect vessel wall damage","None of the above"],a:0},
   {q:"T-2202 is glasslined steel column.",o:["TRUE","FALSE"],a:0},
   {q:"Glass lined Piping systems require care BY",o:["Ensuring no physical impact","Ensuring no water spray on hot pipe","Ensure controlled cooling and controlled heating","ALL of the above"],a:3},
@@ -347,7 +402,7 @@ const HARD = [
   {q:"E-2352 uses ___ as cooling medium.",o:["Chilled water","Cooling water","DM Water","Air"],a:0},
   {q:"E-2354 is used to cool",o:["Waste water acidic","Neutralized waste water","SODA","None of the Above"],a:0},
   {q:"What is MEP 2394?",o:["Orifice","Mixer","Baffle plate","Steam trap"],a:2},
-  {q:"Why Airlock is required to entry/exit to/from dome?",o:["Special double door to prevent phosgene release into atmosphere while entering containment dome","Special double door to prevent PMDI release into atmosphere while exiting containment dome","Airlock contains breathing air supply for use while entering and exiting the dome","None of the Above"],a:0},
+  {q:"Why is Airlock required to entry/exit to/from dome?",o:["Special double door to prevent phosgene release while entering containment dome","Special double door to prevent PMDI release while exiting containment dome","Airlock contains breathing air supply for entering and exiting the dome","None of the Above"],a:0},
   {q:"There is cross tie connection between LP N2 header and HP N2 header.",o:["TRUE","FALSE"],a:1},
   {q:"Function of steam trap is to Prevent steam and allow condensate FLOW.",o:["TRUE","FALSE"],a:0},
   {q:"YSTR23379B is located at bottom outlet line of column",o:["T-2311","T-2321","T-2330","T-2313"],a:1},
@@ -360,40 +415,109 @@ const HARD = [
   {q:"Under vacuum conditions boiling point of sulfuric acid will be lower.",o:["TRUE","FALSE"],a:0}
 ];
 
-// ─── State ───────────────────────────────────────────────────────────────────
-let pool = [], idx = 0, score = 0, userAnswers = [], currentMode = '';
+// ── Registry of all quizzes ───────────────────────────────────────────────────
+const QUIZZES = {
+  ahmed: {
+    icon: '⚗️',
+    title: 'Ahmed Quiz',
+    sub: 'DNT Unit Operations',
+    color: '#60a5fa',
+    easy:   AHMED_EASY,
+    medium: AHMED_MEDIUM,
+    hard:   AHMED_HARD
+  },
+  buhaimed: {
+    icon: '🏭',
+    title: 'Buhaimed Quiz',
+    sub: 'SAC-NAC Questions Bank',
+    color: '#22d3ee',
+    easy:   BUHAIMED_EASY,
+    medium: BUHAIMED_MEDIUM,
+    hard:   BUHAIMED_HARD
+  }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeQuizKey = '', currentMode = '', pool = [], idx = 0, score = 0, userAnswers = [];
 
 function shuffle(arr) {
-  const a = [...arr]; for (let i = a.length-1; i>0; i--) { const j = Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a;
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) { const j = Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
 }
 
+// ── Navigation ────────────────────────────────────────────────────────────────
+function show(id) {
+  ['portal','quiz-home','quiz','results'].forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  target.style.display = id === 'portal' ? 'flex' : 'block';
+  window.scrollTo(0,0);
+}
+
+function goPortal() { show('portal'); }
+
+function openQuiz(key) {
+  activeQuizKey = key;
+  const qz = QUIZZES[key];
+  document.getElementById('qhIcon').textContent  = qz.icon;
+  document.getElementById('qhTitle').textContent = qz.title;
+  document.getElementById('qhSub').textContent   = qz.sub;
+  document.getElementById('qhTitle').style.color = qz.color;
+
+  const e = qz.easy.length, m = qz.medium.length, h = qz.hard.length;
+  document.getElementById('cntEasy').textContent   = e + ' Questions';
+  document.getElementById('cntMedium').textContent = m + ' Questions';
+  document.getElementById('cntHard').textContent   = h + ' Questions';
+  document.getElementById('cntAll').textContent    = (e+m+h) + ' Questions';
+  show('quiz-home');
+}
+
+function backToHome() { openQuiz(activeQuizKey); }
+
+// ── Quiz logic ────────────────────────────────────────────────────────────────
 function startQuiz(mode) {
   currentMode = mode;
-  const sets = { easy: EASY.map(q=>({...q,diff:'easy'})), medium: MEDIUM.map(q=>({...q,diff:'medium'})), hard: HARD.map(q=>({...q,diff:'hard'})) };
-  pool = mode === 'all' ? shuffle([...sets.easy,...sets.medium,...sets.hard]) : shuffle(sets[mode]);
+  const qz = QUIZZES[activeQuizKey];
+  const sets = {
+    easy:   qz.easy.map(q=>({...q,diff:'easy'})),
+    medium: qz.medium.map(q=>({...q,diff:'medium'})),
+    hard:   qz.hard.map(q=>({...q,diff:'hard'}))
+  };
+  pool = mode==='all'
+    ? shuffle([...sets.easy,...sets.medium,...sets.hard])
+    : shuffle(sets[mode]);
+
+  if (!pool.length) {
+    alert('No questions available for this mode yet. Check back soon!');
+    return;
+  }
+
   idx = 0; score = 0; userAnswers = [];
-  show('quiz'); renderQuestion();
+  show('quiz');
+  renderQuestion();
 }
 
 function renderQuestion() {
-  const q = pool[idx];
-  const total = pool.length;
-  document.getElementById('pFill').style.width = ((idx/total)*100)+'%';
+  const q = pool[idx], total = pool.length;
+  document.getElementById('pFill').style.width    = ((idx/total)*100)+'%';
   document.getElementById('qCounter').textContent = `${idx+1} / ${total}`;
   document.getElementById('scoreDisp').textContent = score;
 
-  const tagEl = document.getElementById('diffTag');
-  tagEl.textContent = q.diff.charAt(0).toUpperCase()+q.diff.slice(1);
-  tagEl.className = 'diff-tag tag-'+q.diff;
+  const tag = document.getElementById('diffTag');
+  tag.textContent  = q.diff.charAt(0).toUpperCase()+q.diff.slice(1);
+  tag.className    = 'diff-tag tag-'+q.diff;
   document.getElementById('qText').textContent = q.q;
 
   const wrap = document.getElementById('optionsWrap');
   wrap.innerHTML = '';
-  const letters = ['A','B','C','D','E'];
-  q.o.forEach((opt, i) => {
+  const L = ['A','B','C','D','E'];
+  q.o.forEach((opt,i) => {
     const btn = document.createElement('button');
     btn.className = 'opt-btn';
-    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.innerHTML = `<span class="ol">${L[i]}</span><span>${opt}</span>`;
     btn.onclick = () => selectAnswer(i);
     wrap.appendChild(btn);
   });
@@ -402,30 +526,27 @@ function renderQuestion() {
   document.getElementById('feedback').textContent = '';
   const nb = document.getElementById('nextBtn');
   nb.className = 'next-btn';
-  nb.textContent = idx === pool.length-1 ? 'See Results' : 'Next Question →';
+  nb.textContent = idx===pool.length-1 ? 'See Results' : 'Next Question →';
 }
 
 function selectAnswer(chosen) {
-  const q = pool[idx];
-  const correct = q.a;
+  const q = pool[idx], correct = q.a;
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
   const btns = document.querySelectorAll('.opt-btn');
-  btns.forEach(b => b.disabled = true);
-  btns[chosen].classList.add(chosen === correct ? 'correct' : 'wrong');
+  btns[chosen].classList.add(chosen===correct ? 'correct' : 'wrong');
   if (chosen !== correct) btns[correct].classList.add('correct');
-
-  const fb = document.getElementById('feedback');
-  const letters = ['A','B','C','D','E'];
-  if (chosen === correct) {
-    fb.className = 'feedback show ok';
-    fb.textContent = '✓ Correct!';
+  const L = ['A','B','C','D','E'];
+  if (chosen===correct) {
     score++;
+    document.getElementById('feedback').className = 'feedback show ok';
+    document.getElementById('feedback').textContent = '✓ Correct!';
   } else {
-    fb.className = 'feedback show err';
-    fb.textContent = `✗ Wrong. Correct answer: ${letters[correct]} — ${q.o[correct]}`;
+    document.getElementById('feedback').className = 'feedback show err';
+    document.getElementById('feedback').textContent = `✗ Wrong. Correct: ${L[correct]} — ${q.o[correct]}`;
   }
   document.getElementById('scoreDisp').textContent = score;
   document.getElementById('nextBtn').classList.add('show');
-  userAnswers.push({ q: q.q, opts: q.o, chosen, correct, diff: q.diff });
+  userAnswers.push({q:q.q, opts:q.o, chosen, correct, diff:q.diff});
 }
 
 function nextQuestion() {
@@ -444,31 +565,24 @@ function showResults() {
   document.getElementById('resWrong').textContent = total-score;
   document.getElementById('resTotal').textContent = total;
 
-  const letters = ['A','B','C','D','E'];
-  const rl = document.getElementById('reviewList');
+  const L = ['A','B','C','D','E'], rl = document.getElementById('reviewList');
   rl.innerHTML = '';
   userAnswers.forEach((a,i) => {
-    const ok = a.chosen === a.correct;
-    const div = document.createElement('div');
-    div.className = 'review-item '+(ok?'r-correct':'r-wrong');
-    div.innerHTML = `
+    const ok = a.chosen===a.correct;
+    const d = document.createElement('div');
+    d.className = 'review-item '+(ok?'r-correct':'r-wrong');
+    d.innerHTML = `
       <div class="review-q"><b>Q${i+1}.</b> ${a.q}</div>
       <div class="review-answers">
-        <div class="review-your ${ok?'ok':''}">Your answer: ${letters[a.chosen]} — ${a.opts[a.chosen]}</div>
-        ${!ok?`<div class="review-correct">Correct: ${letters[a.correct]} — ${a.opts[a.correct]}</div>`:''}
+        <span class="${ok?'rv-ok':'rv-wrong'}">Your answer: ${L[a.chosen]} — ${a.opts[a.chosen]}</span>
+        ${!ok?`<span class="rv-correct-a">Correct: ${L[a.correct]} — ${a.opts[a.correct]}</span>`:''}
       </div>
-      <div class="review-icon">${ok?'✅':'❌'}</div>`;
-    rl.appendChild(div);
+      <div class="r-icon">${ok?'✅':'❌'}</div>`;
+    rl.appendChild(d);
   });
 }
 
 function retryQuiz() { startQuiz(currentMode); }
-function goHome() { show('welcome'); }
-function show(id) {
-  ['welcome','quiz','results'].forEach(s => document.getElementById(s).style.display = s===id?(s==='quiz'?'block':'flex'):'none');
-  if(id==='results') document.getElementById('results').style.display='block';
-  window.scrollTo(0,0);
-}
 </script>
 </body>
 </html>
