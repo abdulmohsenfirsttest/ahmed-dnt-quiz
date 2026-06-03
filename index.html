@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAC-NAC Quiz — BUHAIMED</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+  /* WELCOME SCREEN */
+  #welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; text-align: center; }
+  #welcome h1 { font-size: 2.4rem; font-weight: 800; color: #38bdf8; letter-spacing: -1px; margin-bottom: 6px; }
+  #welcome .subtitle { color: #94a3b8; font-size: 1rem; margin-bottom: 40px; }
+  .mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 480px; margin-bottom: 32px; }
+  .mode-btn { padding: 22px 16px; border: 2px solid transparent; border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: 700; transition: all .2s; }
+  .mode-btn:hover { transform: translateY(-2px); }
+  .mode-btn .count { font-size: .78rem; font-weight: 400; opacity: .75; margin-top: 4px; display: block; }
+  .easy   { background: #14532d; border-color: #22c55e; color: #86efac; }
+  .easy:hover   { background: #166534; }
+  .medium { background: #713f12; border-color: #f59e0b; color: #fde68a; }
+  .medium:hover { background: #78350f; }
+  .hard   { background: #7f1d1d; border-color: #ef4444; color: #fca5a5; }
+  .hard:hover   { background: #831c1c; }
+  .all    { background: #1e1b4b; border-color: #818cf8; color: #c7d2fe; }
+  .all:hover    { background: #23206e; }
+
+  /* QUIZ SCREEN */
+  #quiz { display: none; max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .back-btn { background: none; border: 1px solid #334155; color: #94a3b8; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: .85rem; }
+  .back-btn:hover { border-color: #64748b; color: #e2e8f0; }
+  .progress-wrap { flex: 1; margin: 0 14px; }
+  .progress-bar { background: #1e293b; border-radius: 99px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width .3s; }
+  .q-counter { font-size: .82rem; color: #64748b; white-space: nowrap; }
+  .score-badge { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 6px 14px; font-size: .85rem; color: #94a3b8; }
+  .score-badge span { color: #38bdf8; font-weight: 700; }
+
+  .q-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 28px 24px; margin-bottom: 18px; }
+  .diff-tag { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; margin-bottom: 14px; }
+  .tag-easy   { background: #14532d; color: #86efac; }
+  .tag-medium { background: #713f12; color: #fde68a; }
+  .tag-hard   { background: #7f1d1d; color: #fca5a5; }
+  .q-text { font-size: 1.05rem; line-height: 1.55; color: #e2e8f0; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn { background: #0f172a; border: 2px solid #334155; border-radius: 12px; padding: 13px 18px; text-align: left; cursor: pointer; font-size: .95rem; color: #cbd5e1; transition: all .15s; display: flex; align-items: flex-start; gap: 12px; }
+  .opt-btn .opt-letter { font-weight: 700; color: #64748b; min-width: 18px; }
+  .opt-btn:hover:not(:disabled) { border-color: #38bdf8; color: #e2e8f0; background: #162032; }
+  .opt-btn.correct { border-color: #22c55e; background: #052e16; color: #86efac; }
+  .opt-btn.correct .opt-letter { color: #22c55e; }
+  .opt-btn.wrong   { border-color: #ef4444; background: #2d0707; color: #fca5a5; }
+  .opt-btn.wrong .opt-letter { color: #ef4444; }
+  .opt-btn:disabled { cursor: default; }
+
+  .feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: .9rem; font-weight: 600; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #052e16; border: 1px solid #22c55e; color: #86efac; }
+  .feedback.err { background: #2d0707; border: 1px solid #ef4444; color: #fca5a5; }
+
+  .next-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 6px; display: none; transition: opacity .2s; }
+  .next-btn:hover { opacity: .9; }
+  .next-btn.show { display: block; }
+
+  /* RESULTS SCREEN */
+  #results { display: none; max-width: 640px; margin: 0 auto; padding: 40px 20px 60px; text-align: center; }
+  #results h2 { font-size: 2rem; font-weight: 800; color: #38bdf8; margin-bottom: 8px; }
+  .result-pct { font-size: 5rem; font-weight: 900; line-height: 1; margin: 24px 0 8px; }
+  .result-label { font-size: 1.1rem; color: #94a3b8; margin-bottom: 32px; }
+  .result-stats { display: flex; gap: 16px; justify-content: center; margin-bottom: 36px; flex-wrap: wrap; }
+  .stat-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px 24px; min-width: 100px; }
+  .stat-box .val { font-size: 1.8rem; font-weight: 800; }
+  .stat-box .lbl { font-size: .75rem; color: #64748b; margin-top: 2px; }
+  .green { color: #22c55e; } .red { color: #ef4444; } .blue { color: #38bdf8; }
+
+  .action-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+  .action-btn { padding: 12px 24px; border-radius: 10px; font-size: .95rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all .15s; }
+  .btn-primary { background: #0c4a6e; border-color: #38bdf8; color: #38bdf8; }
+  .btn-primary:hover { background: #075985; }
+  .btn-secondary { background: #1e293b; border-color: #334155; color: #94a3b8; }
+  .btn-secondary:hover { border-color: #64748b; color: #e2e8f0; }
+
+  /* REVIEW */
+  .review-title { font-size: 1.2rem; font-weight: 700; color: #e2e8f0; margin-bottom: 16px; text-align: left; }
+  .review-item { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; text-align: left; }
+  .review-item.r-correct { border-color: #22c55e22; }
+  .review-item.r-wrong   { border-color: #ef444422; }
+  .review-q { font-size: .9rem; color: #cbd5e1; margin-bottom: 8px; }
+  .review-answers { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; }
+  .review-your { color: #ef4444; } .review-your.ok { color: #22c55e; }
+  .review-correct { color: #22c55e; }
+  .review-icon { float: right; font-size: 1rem; margin-top: -2px; }
+
+  @media(max-width:480px) {
+    #welcome h1 { font-size: 1.8rem; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .result-pct { font-size: 3.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div id="welcome">
+  <h1>SAC-NAC Quiz</h1>
+  <p class="subtitle">BUHAIMED — Questions Bank</p>
+  <div class="mode-grid">
+    <button class="mode-btn easy"   onclick="startQuiz('easy')">Easy<span class="count">66 Questions</span></button>
+    <button class="mode-btn medium" onclick="startQuiz('medium')">Medium<span class="count">67 Questions</span></button>
+    <button class="mode-btn hard"   onclick="startQuiz('hard')">Hard<span class="count">66 Questions</span></button>
+    <button class="mode-btn all"    onclick="startQuiz('all')">All<span class="count">199 Questions</span></button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="pFill" style="width:0%"></div></div>
+    </div>
+    <div class="q-counter" id="qCounter">1 / 1</div>
+    <div class="score-badge" style="margin-left:10px">Score: <span id="scoreDisp">0</span></div>
+  </div>
+  <div class="q-card">
+    <div class="diff-tag" id="diffTag"></div>
+    <div class="q-text" id="qText"></div>
+  </div>
+  <div class="options" id="optionsWrap"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+</div>
+
+<!-- RESULTS -->
+<div id="results">
+  <h2>Quiz Complete!</h2>
+  <div class="result-pct" id="resPct"></div>
+  <div class="result-label" id="resLabel"></div>
+  <div class="result-stats">
+    <div class="stat-box"><div class="val green" id="resRight"></div><div class="lbl">Correct</div></div>
+    <div class="stat-box"><div class="val red"   id="resWrong"></div><div class="lbl">Wrong</div></div>
+    <div class="stat-box"><div class="val blue"  id="resTotal"></div><div class="lbl">Total</div></div>
+  </div>
+  <div class="action-row">
+    <button class="action-btn btn-primary"   onclick="retryQuiz()">Retry Same Mode</button>
+    <button class="action-btn btn-secondary" onclick="goHome()">Change Mode</button>
+  </div>
+  <div class="review-title">Answer Review</div>
+  <div id="reviewList"></div>
+</div>
+
+<script>
+const EASY = [
+  {q:"What is the purpose of the Nitric acid Concentration section?",o:["To Produce 88% Nitric Acid","To Produce 98% Nitric Acid","To Produce 100% Nitric Acid","None of the above"],a:1},
+  {q:"Water should not be added to the acid containing system.",o:["TRUE","FALSE"],a:0},
+  {q:"Non-Condensables in the NAC exit the top of which exchanger?",o:["E-2314","E-2324","E-2331","None of the above"],a:2},
+  {q:"The reaction occurring within the NOX Absorption Section is known as an ___ reaction.",o:["Endothermic","Exothermic","Synthetic","None of the above"],a:1},
+  {q:"Which of the following are health hazards associated with exposure to NOX?",o:["Toxic when inhaled","Exposure to the eyes may result in burning sensation","Vapor exposure may cause skin burns","All of the above"],a:3},
+  {q:"Nitric acid (65%) is supplied by?",o:["Unit 320","Unit 305","Unit 325","None of the above"],a:1},
+  {q:"What type of Packing is used in T-2311 and T-2321?",o:["Glass","Silica","Carbon steel","Stainless steel"],a:0},
+  {q:"The colour of NOX gases is",o:["Red","Blue","Brown","Pink"],a:2},
+  {q:"What type of Packings are used in T-2330 Bleaching Column?",o:["Glass","Silica","Carbon steel","Stainless steel"],a:0},
+  {q:"Which type of Gas detectors are installed in NAC unit?",o:["NO2","NO","All of above (NO2 and NO)"],a:2},
+  {q:"Air is for Bleaching NA98 product.",o:["TRUE","FALSE"],a:0},
+  {q:"Nitric acid concentration is a critical factor for Nitration of Toluene.",o:["TRUE","FALSE"],a:0},
+  {q:"No organics are expected in NAC unit.",o:["TRUE","FALSE"],a:0},
+  {q:"Sulfuric acid 98% is used for seal flush in",o:["P-2340","P-2360","P-2008","P-2345","None of the Above"],a:3},
+  {q:"What is the cooling medium supplied to E-2331?",o:["Ambient MCB","Cooling Water","Chilled Water","Chilled MCB"],a:2},
+  {q:"What type of exchanger is E-2314?",o:["Plate Type","U-tube","Fin type","None of the above"],a:1},
+  {q:"How many preheaters are installed in NAC?",o:["2","4","3","None of the above"],a:1},
+  {q:"How many PRODUCT COOLERS (NA98) are installed in NAC?",o:["2","4","3","None of the above"],a:0},
+  {q:"What type of level devices are used to measure the level in V-2345?",o:["Redundant gamma ray level devices","Redundant radar level devices","Redundant paddle level devices","Differential Pressure Devices"],a:1},
+  {q:"What is the cooling medium used to cool the overhead stream being received from T-2321 into E-2324?",o:["Demineralized water","Cooling Water","Chilled Water","None of above"],a:1},
+  {q:"Sulfuric acid 85% from NAC unit is exported to",o:["V-2213","V-2008","V-2006AB","V-2009AB","None of Above"],a:3},
+  {q:"What type of pump is P-2340?",o:["Direct mechanical driven pump","Piston driven pump","Magnetic drive pump","None of the above"],a:2},
+  {q:"What is the purpose of T-2311?",o:["Separate Sulfuric acid from water","Separate NOX gases from 65% Nitric acid","Concentrate Nitric with the help of sulfuric acid","None of the Above"],a:2},
+  {q:"Which of the following hazardous and toxic chemicals are found in the NAC UNIT?",o:["Nitric acid 65%","Sulfuric acid 98%","Caustic Soda","Sulfuric acid 85%","All of the Above"],a:4},
+  {q:"How many evaporators are installed to concentrate Sulfuric acid to 85%?",o:["1","2","3","4"],a:3},
+  {q:"What is the type of P-2360A/B?",o:["Vertical Multistage","Vertical Single stage","Reciprocating","None of above"],a:0},
+  {q:"Sulfuric acid 85% is fed to T-2311 from",o:["Side","Top","Bottom","None of above"],a:1},
+  {q:"How many vertical evaporators are there in NAC unit?",o:["1","2","3","4"],a:0},
+  {q:"What type of level transmitters are located on T-2360?",o:["Capacitance","Radar","Guided Radar","Differential Pressure"],a:0},
+  {q:"It is not possible to Operate only one train of NAC.",o:["TRUE","FALSE"],a:1},
+  {q:"Which of the pumps listed below are with on line greasing system in DNTSAC unit?",o:["P-2213","P-2214","P-2244","All the above","Only A and B"],a:3},
+  {q:"What is the Pressure of steam coming to D-2850?",o:["3.5 BARG","6 BARG","21 BARG","42 BARG","None of the above"],a:3},
+  {q:"How many preheaters are installed in SAC?",o:["1","2","3","4"],a:3},
+  {q:"E-2213 uses which cooling medium?",o:["Chilled water","Condensate","Cooling water","Nitric acid","None of above"],a:2},
+  {q:"What is the Material of Construction of T-2250?",o:["Low Temperature Carbon Steel","Alloy 20","Carbon Steel","SS 316L"],a:0},
+  {q:"Nitric acid from V-2107 is concentrated in",o:["T-2201","T-2240","T-2250","None of above"],a:3},
+  {q:"What type of Heat exchanger is E-2213?",o:["Shell and Tube","Plate type","U-tube","Double pipe"],a:1},
+  {q:"What is the cooling media used in jacket to cool down body of B-7911?",o:["LP Steam","Chilled Water","Chilled MCB","Ambient MCB"],a:3},
+  {q:"What is the media used in jacket to maintain temperature in V-2244AB?",o:["Condensate","Hot water","Warm water","Steam"],a:2},
+  {q:"What is the Cooling fluid that is used to remove the heat of compression of C-2251AB?",o:["Cooling water","Chilled Water","Ambient air","None of ABOVE"],a:0},
+  {q:"What is the type of Compressor C-2251AB?",o:["Liquid ring compressor","Centrifugal Compressor","Screw Compressor","None of ABOVE"],a:2},
+  {q:"How do we know if phosgene is in the exhaust of the elephant trunk?",o:["Analyzer Detects","Hand held LEL meter","Smoke alarm sounds","TOC detector"],a:0},
+  {q:"Which Equipments are containing by PU-2243AB?",o:["P-2243A/B, Sealing system, MNT dozing","Only sealing system","Only vacuum pumps","Spare valves"],a:0},
+  {q:"What is the function of B-2260?",o:["To send NOX gases to SAC unit","To send NOX gases to NAC unit","To send NOX gases to TTU unit","None of the above"],a:2},
+  {q:"What is the type of C-2250A?",o:["Screw Compressor","Centrifugal Compressor","Liquid Ring Compressor","Reciprocating Compressor"],a:2},
+  {q:"T-2240 NAPC column is working under vacuum.",o:["TRUE","FALSE"],a:0},
+  {q:"P-2205A Type is",o:["Diaphragm pump","Centrifugal pump","Vacuum pump","None of the above"],a:0},
+  {q:"Cyclone separator C2251 is used to remove",o:["Dust from Air","Small Sump with Level measurement","Vacuum truck","Liquid collection tank"],a:0},
+  {q:"What does Con-7901 (Dome) have for to monitor the operation personal activity?",o:["Radio","Dome entry permit","Several Cameras are located inside the dome","None of the above"],a:2},
+  {q:"Any Person entering the NAC SAC must use PPES — they must wear:",o:["Chemical suit only","Monogoggles and faceshield only","Rubber shoes only","All of the above"],a:3},
+  {q:"What is used to neutralize a SMALL acid spill in NAC SAC?",o:["Sodium Carbonate powder","Sodium carbonate solution","Sodium Hydroxide","Pottasium Carbonate"],a:0},
+  {q:"DM water is used to absorb NOX in T-2250.",o:["TRUE","FALSE"],a:0},
+  {q:"T-2360 has ___ stages.",o:["6","8","10","12"],a:3},
+  {q:"The Air locks are situated at which floors?",o:["Grade level, Sixth floor and fifth floor","Grade level, Sixth floor and Seventh floor","Grade level, third floor and fifth floor","Grade level, First floor and fifth floor"],a:2},
+  {q:"DM water is used to absorb NOX in T-2360.",o:["TRUE","FALSE"],a:1},
+  {q:"Which utility is NOT provided in NAC SAC building utility station?",o:["Plant Air","Nitrogen","Steam","DM WATER"],a:1},
+  {q:"Only Warm water is used for heat tracing in SAC.",o:["TRUE","FALSE"],a:1},
+  {q:"Only Electrical heat tracing is used for heat tracing in NAC.",o:["TRUE","FALSE"],a:0},
+  {q:"AIR is used for oxidizing NOX in T-2360.",o:["FALSE","TRUE"],a:1},
+  {q:"P-2214 is located on Ground floor.",o:["TRUE","FALSE"],a:0},
+  {q:"What is the concentration of Sulfuric acid product from SAC of DNT?",o:["80%","85%","88%","98%"],a:2},
+  {q:"Carry over of free organics in T-2202 CAN LEAD TO EXPLOSION.",o:["TRUE","FALSE"],a:0},
+  {q:"Chilled water is supplied by",o:["ISS","TDA","MAFNA","MFC"],a:0},
+  {q:"Caustic soda is used as neutralizing agent in SAC Waste water neutralization.",o:["TRUE","FALSE"],a:0},
+  {q:"VAPOR line from V-2240 is connected to",o:["T-2202","T-2240","T-2250","None of above"],a:1},
+  {q:"Concentration of sulfuric acid in Spent Acid feed is",o:["87%","98%","57%","72%"],a:3}
+];
+
+const MEDIUM = [
+  {q:"Why must the heat tracing be maintained in the organics (DNT/MNT) containing system?",o:["To prevent freezing of toluene","To prevent freezing of MNT","To prevent freezing of DNT","All of the above","None of the above"],a:2},
+  {q:"Which of the following hazardous chemicals can be found within the SAC BUILDING?",o:["Nitric Acid 98%","Mixed acid","Sulfuric acid 88%","Spent sulfuric acid","All of the above"],a:4},
+  {q:"Niobium tubes are used in (set 1)",o:["E-2314","E-2213","E-2345","E-2300"],a:0},
+  {q:"Tantalum tubes are used in",o:["E-2314","E-2311","E-2345","E-2300","E-2350"],a:1},
+  {q:"Safety shower is available on every floor of NAC.",o:["TRUE","FALSE"],a:0},
+  {q:"V-2213 Material of construction is",o:["Aluminium","SS 316","Glass lined steel","Carbon steel"],a:2},
+  {q:"DM WATER is used for sealing in P-2353AB.",o:["TRUE","FALSE"],a:0},
+  {q:"The steam pressure to inlet of E-2341 is approximately ___ bar (g).",o:["5","10","15","21"],a:3},
+  {q:"Niobium tubes are used in (set 2)",o:["E-2324","E-2213","E-2345","E-2300"],a:1},
+  {q:"Product Nitric acid 98% is cooled in",o:["E-2332","E-2333","ALL OF THE ABOVE","None of the above"],a:2},
+  {q:"Cooling water is used as cooling medium in E-2331.",o:["TRUE","FALSE"],a:1},
+  {q:"V-2370 is used for",o:["Caustic soda","Sodium Carbonate","Nitric acid","None of the above"],a:0},
+  {q:"V-2345 is used for",o:["Nitric Acid 85%","Sulfuric acid 85%","Nitric Acid 88%","Sulfuric acid 88%"],a:1},
+  {q:"Nitric acid from the bottom of T-2360 is going to",o:["E-2300 INLET","E-2301 INLET","E-2302 INLET","E-2303 INLET"],a:2},
+  {q:"What is the design outlet temperature of SULFURIC ACID OUTLET at E-2213?",o:["45 °C","80 °C","95 °C","120 °C"],a:2},
+  {q:"Two PSVs are installed on T-2250 GAS OUTLET line.",o:["TRUE","FALSE"],a:0},
+  {q:"What is raw material for NAPC feed?",o:["Nitric acid 15%","Nitric acid 10%","Nitric acid 50%","None of the above"],a:0},
+  {q:"How many evaporators are installed in DNTSAC?",o:["Three","FOUR","Eight","Ten"],a:0},
+  {q:"What is the purpose of the V-2220 Separation System?",o:["To separate organics and sulfuric acid","To separate Nitric acid and sulfuric acid","To separate Organics and Acidic water","None of the above"],a:2},
+  {q:"V-2220 has sight glass to see interphase.",o:["TRUE","FALSE"],a:0},
+  {q:"What is the purpose of T-2202?",o:["To strip organics from spent acid","To strip water from spent acid","To strip sulfuric acid from spent acid","None of the above"],a:0},
+  {q:"Power monitoring is available for",o:["P-2210","P-2213","P-2214","P-2244","All of above"],a:4},
+  {q:"E-2200 is Spent acid preheater.",o:["TRUE","FALSE"],a:0},
+  {q:"E-2202 tube material is",o:["SS 304","SS 316","Inconel 600","Tantalum"],a:3},
+  {q:"What is the T-2240 Bottom Stream Composition supply to Mix acid tank?",o:["Toluene, sulfuric acid, nitric acid","DNT, Sulfuric acid","Nitric acid, sulfuric acid, water, organics","None of the Above"],a:2},
+  {q:"The feed streams leaving T-2311 is cooled down to approximately ___ °C.",o:["60","70","80","100"],a:2},
+  {q:"Where is the condensed liquid from E-7323 accumulated?",o:["D-7313","D-7301","D-7323","None of the above"],a:2},
+  {q:"Which fluid is used in stages of T-2250 to remove heat of absorption?",o:["Cooling water","Chilled water","DM water","None of the Above"],a:1},
+  {q:"T-2313 function is to",o:["Remove NOX","Remove Oxygen","Remove Air","Remove water"],a:0},
+  {q:"What is Material of Construction of T-2321?",o:["SS 304","SS 316","Glass lined steel","Low Temperature Carbon Steel"],a:2},
+  {q:"First stage evaporator of SAC of NAC is vertical.",o:["TRUE","FALSE"],a:0},
+  {q:"What is Material of Construction of T-2360?",o:["Alloy 20","SS 316","SS304L","Hastelloy C"],a:2},
+  {q:"CY-2360 takes air from",o:["Atmosphere","Plant air header","Utility station","None of the above"],a:0},
+  {q:"Non condensable gases from E-2331 goes to",o:["Suction of C-2360AB","Suction of C-2350ABC","Atmosphere","None of the above"],a:0},
+  {q:"Function of A-2371 and A-2372 is to",o:["Mix NITRIC ACID AND SULFURIC ACID","Mix NITRIC ACID AND Caustic soda","Mix Waste water of NAC and Caustic soda","None of the Above"],a:2},
+  {q:"How is liquid transferred out of V-2371 to V-2372?",o:["It is pumped out","It is padded out with N2","It gravity drains","It overflows"],a:3},
+  {q:"P-2374 AB transfers neutralized waste water to",o:["DNT Extraction","SAC Extraction","ISS","SUMP 2633","SUMP2632"],a:2},
+  {q:"What is the MATERIAL OF CONSTRUCTION of V-2371, V-2372, V-2373?",o:["Alloy 20","SS 316","SS304L","Hastelloy C"],a:2},
+  {q:"What is the MATERIAL OF CONSTRUCTION of V-2370?",o:["Alloy 20","SS 316","SS304L","Hastelloy C"],a:2},
+  {q:"T-2313, T-2323, T-2330 Columns have",o:["TRAY","STRUCTURED PACKINGS","RANDOM GLASS PACKINGS","None of the Above"],a:2},
+  {q:"Nitric acid 98% is stored in V-2008.",o:["TRUE","FALSE"],a:0},
+  {q:"Where can a thermal burn occur in the evacuation system?",o:["Suction of B-7911","Discharge of B-7913","Suciton of B-7913","Discharge of B-7911"],a:3},
+  {q:"What is the purpose of NOX Absorption System?",o:["To absorb NOX gas and Recover nitric acid","To destroy NOX gases by heating","To produce 98% Nitric acid","All of the above"],a:0},
+  {q:"Mixed acid from P-2244 is supplied to R2001.",o:["TRUE","FALSE"],a:0},
+  {q:"P-2340 is variable speed drive.",o:["TRUE","FALSE"],a:0},
+  {q:"Secondary cooling water system of SAC uses Pump",o:["P-2860AB","P-2850AB","P-2360AB","P-2801AB"],a:0},
+  {q:"J-2860 is used for",o:["Dozing caustic soda in secondary cooling water system","Dozing DM WATER in secondary cooling water system","Dozing NALCO Chemicals in secondary cooling water system","Dozing soda in secondary cooling water system"],a:2},
+  {q:"Material of Tubes of E-2244 is",o:["Tantalum","SS 316","Silicon Carbide","Niobium"],a:2},
+  {q:"P-2243 is vacuum pump for",o:["T-2202","T-2240","T-2222","T-2250"],a:1},
+  {q:"What is the status of B-7933 during normal operation?",o:["Blower is not running","Blower is running with atmospheric air","A & B","None of the Above"],a:1},
+  {q:"Electrical heat tracing is used in MIXED acid supply line from P-2244 to R2001.",o:["TRUE","FALSE"],a:0},
+  {q:"A-2244AB requires ___ for sealing.",o:["Air","Nitrogen","DM water","None of above"],a:1},
+  {q:"E-2250 uses ___ as cooling medium.",o:["Secondary Cooling water","Cooling water","Chilled water","Warm water"],a:0},
+  {q:"There is a SAMPLING POINT in Waste gas outlet from T-2250 to atmosphere.",o:["FALSE","TRUE"],a:1},
+  {q:"MNT is used to prevent freezing of DNT during Cooling.",o:["TRUE","FALSE"],a:0},
+  {q:"MNT SPRAY is used in ___ places.",o:["2","4","5","6"],a:2},
+  {q:"E-2241 TUBE MATERIAL is",o:["Tantalum","SS304L","Silicon Carbide","Niobium"],a:1},
+  {q:"All temporary nitrogen connections from the utility drops to the process do not require back flow prevention.",o:["TRUE","FALSE"],a:1},
+  {q:"T-2240 Top part is of SS 304L and bottom part is of Glass lined steel.",o:["TRUE","FALSE"],a:0},
+  {q:"Breathing Air header configuration at PMDI Battery limit on East west piperack",o:["Has automated block, flowmeter and bypass of flowmeter","Has single block and bleed valve, flowmeter and bypass","Has double block and bleed valve, flowmeter and bypass","Has flowmeter and bypass of flowmeter only"],a:2},
+  {q:"The Breathing air supply pressure from the ISS is monitored and alarms on low & low low pressure in the control room.",o:["TRUE","FALSE"],a:0},
+  {q:"V-2242",o:["Separates acidic condensate and organics","Separates Nitric acid and sulfuric acid","Separates organics and sulfuric acid","None of the Above"],a:0},
+  {q:"Gravity separation is used for V-2242.",o:["FALSE","TRUE"],a:1},
+  {q:"V-2204 separates",o:["DILUTE Nitric acid and organics","Nitric acid and sulfuric acid","Organics and sulfuric acid","None of the Above"],a:0},
+  {q:"Why is nitric acid 98% added to sulfuric acid 88%?",o:["To prevent corrosion","To prepare nitration mixer","None of above"],a:0},
+  {q:"What is concentration of Caustic soda?",o:["10%","12%","16%","24%"],a:2},
+  {q:"B-2260 IS BACK UP SYSTEM for",o:["NOX absorption","Neutralization","Compression","None of above"],a:0},
+  {q:"What is concentration of T-2360 bottom acid?",o:["20%","30%","40%","45%"],a:3}
+];
+
+const HARD = [
+  {q:"What is the primary function of the gas detectors in SAC unit?",o:["To detect NOX in the building","To Check Performance of NAC","To detect vessel wall damage","None of the above"],a:0},
+  {q:"T-2202 is glasslined steel column.",o:["TRUE","FALSE"],a:0},
+  {q:"Glass lined Piping systems require care BY",o:["Ensuring no physical impact","Ensuring no water spray on hot pipe","Ensure controlled cooling and controlled heating","ALL of the above"],a:3},
+  {q:"Heat of dilution will be more",o:["By Mixing cold acid and hot acid of same concentration","By Mixing Concentrated acid and dilute acid concentration","By Mixing 98% acid and water","None of the above"],a:2},
+  {q:"The objective of the NAC UNIT is to produce Nitric acid 98%.",o:["TRUE","FALSE"],a:0},
+  {q:"NAC SAC Buildings HVAC SYSTEM has detectors for",o:["Ammonia","Toluene","NOX","All of the Above"],a:3},
+  {q:"What may happen if the Water flow is too low at the T-2250 inlet?",o:["NOX may release to atmosphere","Nitric acid recovery from absorption is less","Brown color gases may be seen","All of the Above"],a:3},
+  {q:"Warm water jackets are provided to",o:["V-2244AB","V-2231","V-2232","None of above"],a:0},
+  {q:"Which agitators are glasslined?",o:["A-2231","A-2232","A-2244AB","All of the above"],a:2},
+  {q:"DNTSAC section is operated at vacuum of ___ mbar.",o:["150","200","250","300"],a:3},
+  {q:"PSV-220101AB are installed on steam inlet line to",o:["E-2301","E-2201","E-1022","E-2202"],a:1},
+  {q:"What is the set pressure of PSV220101AB (IN BARG)?",o:["18","19","20","21","22"],a:3},
+  {q:"In P&D piping classification, RT01 means",o:["CS PTFE LINED","CS RUBBER LINED","CS GLASS LINED","SS PTFE LINED","NONE OF ABOVE"],a:0},
+  {q:"There are ___ heat exchangers in DNTSAC unit with Silicon Carbide tubes.",o:["2","3","4","5"],a:3},
+  {q:"Level indicators on V-2244AB is of ___ type.",o:["Capacitance","Differential pressure","Radar","Nucleonic"],a:2},
+  {q:"What is used as fluid for liquid ring in C-2250ABC?",o:["WATER","NITRIC ACID","SULFURIC ACID","DNT"],a:1},
+  {q:"What is the set pressure of PSV225001AB (IN BARG)?",o:["2","4","6","8"],a:3},
+  {q:"Outlet of PSV225001AB goes to",o:["T-2250","C-2250 SUCTION","Atmosphere","None of the above"],a:2},
+  {q:"What is the set pressure of PSV224000AB (IN BARG)?",o:["1","2","3","0.5"],a:0},
+  {q:"What is the design feed temperature of spent acid to T-2202?",o:["100 °C","150 °C","173 °C","200 °C"],a:2},
+  {q:"What is the Design capacity of SAC Feed to T-2202?",o:["40 MT/HR","60 MT/HR","70 MT/HR","80 MT/HR","90 MT/HR"],a:3},
+  {q:"P-2222AB are",o:["Magdrive pumps","Centrifugal pumps","Waste water circulation pumps for vacuum","All of the Above"],a:3},
+  {q:"P-2223AB are",o:["Vacuum pumps with liquid ring","Centrifugal pumps","Diaphragm pumps","None of the above"],a:0},
+  {q:"What is the chemical composition of the contents of P-2213?",o:["Sulfuric acid, Nitric acid, water","Nitric acid, water","Sulfuric acid, Nitric acid","None of the above"],a:0},
+  {q:"One of the cardinal rules is",o:["Never combine Ammonia and NOX containing vents in one line","Always combine Ammonia and NOX containing vents in one line","Never combine Sulfuric acid and Nitric acid in one line","None of above"],a:0},
+  {q:"What is the Design capacity of Nitric acid feed 65% to T-2311?",o:["10 MT/HR","11 MT/HR","15 MT/HR","17 MT/HR"],a:3},
+  {q:"Design concentration of Sulfuric acid at bottom of T-2311 is",o:["55%","67%","85%","75%"],a:1},
+  {q:"P-2332 is",o:["PFA LINED MAG DRIVE PUMP","RUBBERLINED PUMP","SILICON IRON PUMP","DIAPHRAGM PUMP"],a:0},
+  {q:"Out of Total four stages of SAC evaporation of NAC",o:["1 is vertical, 3 are horizontal","2 are vertical, 2 are horizontal","3 are vertical, 1 is horizontal","ALL four horizontal"],a:0},
+  {q:"Sump 2633 wastewater can be transferred to",o:["ISS","NAC Waste water neutralization section","Both A&B","None of above"],a:2},
+  {q:"What is the set pressure of PSV236000AB (IN BARG)?",o:["2","4","6","8"],a:3},
+  {q:"It is safe to mix oil and Nitric acid.",o:["TRUE","FALSE"],a:1},
+  {q:"E-2314 TUBES ARE",o:["STRAIGHT TUBES","FINNED TUBES","U-TUBE","None of the Above"],a:2},
+  {q:"Bleaching air enters in T-2330 from",o:["TOP","MIDDLE","SIDE","BOTTOM"],a:3},
+  {q:"In concentration process of 65% nitric acid with sulfuric acid",o:["Water is evaporated","Water is transferred to sulfuric acid","Water is frozen","All of the Above"],a:1},
+  {q:"Sulfuric acid concentration in V-2344 is",o:["Lower than in V-2345","Same as in V-2345","Higher than in V-2345","All of the Above"],a:2},
+  {q:"PSV-234101AB are installed on steam inlet line to",o:["E-2341","E-2342","E-2324","E-2314"],a:0},
+  {q:"E-2342 Tube material is",o:["SS-316","Niobium","Tantalum","None of the Above"],a:2},
+  {q:"How many preheaters are installed in NAC as per design?",o:["1","2","3","4"],a:3},
+  {q:"Sulfuric acid 98% is introduced in the system from P-2340 suction for start up.",o:["TRUE","FALSE"],a:0},
+  {q:"E-2345 tube material is",o:["SS-316","Silicon carbon","Tantalum","Niobium"],a:1},
+  {q:"T-2360 Operating pressure is",o:["2 barg","4 barg","6 barg","8 barg"],a:2},
+  {q:"PSV230010AB is located on",o:["Nitric acid 65% line","Sulfuric acid 98% line","Sulfuric acid 85% line","None of the above"],a:0},
+  {q:"Set pressure of PSV230010AB is ___ barg.",o:["2","4","6","8"],a:3},
+  {q:"P-2374AB handles",o:["Nitric acid","Sulfuric acid","Neutralized waste water","Acidic water"],a:2},
+  {q:"What are favorable conditions for NOX absorption?",o:["Low pressure high temperature","High pressure low temperature","High pressure high temperature","Low pressure low temperature"],a:1},
+  {q:"Oxidation reaction takes place in NOx absorption column.",o:["TRUE","FALSE"],a:0},
+  {q:"___ is used as external flush medium for P-2345.",o:["DM water","Nitric acid","Sulfuric acid","All of the Above"],a:2},
+  {q:"Glass packing are used in T-2330.",o:["TRUE","FALSE"],a:0},
+  {q:"LI231403 for T-2360 level is",o:["Radar","Capacitance","Differential pressure","Interphase"],a:1},
+  {q:"How many access ways are on each floor of NAC?",o:["1","2","3","None of the above"],a:1},
+  {q:"What is the Desalting process?",o:["Removal of salt from equipments with acid","Removal of salt from equipments with water circulation","A & B","None of the above"],a:1},
+  {q:"E-2352 uses ___ as cooling medium.",o:["Chilled water","Cooling water","DM Water","Air"],a:0},
+  {q:"E-2354 is used to cool",o:["Waste water acidic","Neutralized waste water","SODA","None of the Above"],a:0},
+  {q:"What is MEP 2394?",o:["Orifice","Mixer","Baffle plate","Steam trap"],a:2},
+  {q:"Why Airlock is required to entry/exit to/from dome?",o:["Special double door to prevent phosgene release into atmosphere while entering containment dome","Special double door to prevent PMDI release into atmosphere while exiting containment dome","Airlock contains breathing air supply for use while entering and exiting the dome","None of the Above"],a:0},
+  {q:"There is cross tie connection between LP N2 header and HP N2 header.",o:["TRUE","FALSE"],a:1},
+  {q:"Function of steam trap is to Prevent steam and allow condensate FLOW.",o:["TRUE","FALSE"],a:0},
+  {q:"YSTR23379B is located at bottom outlet line of column",o:["T-2311","T-2321","T-2330","T-2313"],a:1},
+  {q:"What is the function of MX-23878?",o:["To mix nitric acid and sulfuric acid","To mix nitric acid and soda","To mix acidic condensate and sulfuric acid during start up"],a:2},
+  {q:"On line density meter is used to check NA98 concentration.",o:["TRUE","FALSE"],a:0},
+  {q:"E-2314 FUNCTION is",o:["Cool Nitric acid vapors","Condense Nitric acid vapors","Both A&B"],a:2},
+  {q:"Design temperature of chilled water supply is",o:["5 °C","7 °C","10 °C","15 °C"],a:1},
+  {q:"Design temperature of Cooling water supply is",o:["20 °C","33 °C","45 °C","48 °C"],a:1},
+  {q:"Nitric acid 98% is used for nitration of Toluene.",o:["TRUE","FALSE"],a:1},
+  {q:"Under vacuum conditions boiling point of sulfuric acid will be lower.",o:["TRUE","FALSE"],a:0}
+];
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let pool = [], idx = 0, score = 0, userAnswers = [], currentMode = '';
+
+function shuffle(arr) {
+  const a = [...arr]; for (let i = a.length-1; i>0; i--) { const j = Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a;
+}
+
+function startQuiz(mode) {
+  currentMode = mode;
+  const sets = { easy: EASY.map(q=>({...q,diff:'easy'})), medium: MEDIUM.map(q=>({...q,diff:'medium'})), hard: HARD.map(q=>({...q,diff:'hard'})) };
+  pool = mode === 'all' ? shuffle([...sets.easy,...sets.medium,...sets.hard]) : shuffle(sets[mode]);
+  idx = 0; score = 0; userAnswers = [];
+  show('quiz'); renderQuestion();
+}
+
+function renderQuestion() {
+  const q = pool[idx];
+  const total = pool.length;
+  document.getElementById('pFill').style.width = ((idx/total)*100)+'%';
+  document.getElementById('qCounter').textContent = `${idx+1} / ${total}`;
+  document.getElementById('scoreDisp').textContent = score;
+
+  const tagEl = document.getElementById('diffTag');
+  tagEl.textContent = q.diff.charAt(0).toUpperCase()+q.diff.slice(1);
+  tagEl.className = 'diff-tag tag-'+q.diff;
+  document.getElementById('qText').textContent = q.q;
+
+  const wrap = document.getElementById('optionsWrap');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    wrap.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  const nb = document.getElementById('nextBtn');
+  nb.className = 'next-btn';
+  nb.textContent = idx === pool.length-1 ? 'See Results' : 'Next Question →';
+}
+
+function selectAnswer(chosen) {
+  const q = pool[idx];
+  const correct = q.a;
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[chosen].classList.add(chosen === correct ? 'correct' : 'wrong');
+  if (chosen !== correct) btns[correct].classList.add('correct');
+
+  const fb = document.getElementById('feedback');
+  const letters = ['A','B','C','D','E'];
+  if (chosen === correct) {
+    fb.className = 'feedback show ok';
+    fb.textContent = '✓ Correct!';
+    score++;
+  } else {
+    fb.className = 'feedback show err';
+    fb.textContent = `✗ Wrong. Correct answer: ${letters[correct]} — ${q.o[correct]}`;
+  }
+  document.getElementById('scoreDisp').textContent = score;
+  document.getElementById('nextBtn').classList.add('show');
+  userAnswers.push({ q: q.q, opts: q.o, chosen, correct, diff: q.diff });
+}
+
+function nextQuestion() {
+  idx++;
+  if (idx >= pool.length) { showResults(); return; }
+  renderQuestion();
+}
+
+function showResults() {
+  show('results');
+  const total = pool.length, pct = Math.round((score/total)*100);
+  document.getElementById('resPct').textContent = pct+'%';
+  document.getElementById('resPct').style.color = pct>=80?'#22c55e':pct>=60?'#f59e0b':'#ef4444';
+  document.getElementById('resLabel').textContent = pct>=80?'Excellent work! 🎯':pct>=60?'Good effort! Keep studying.':'Keep practising — you can do it!';
+  document.getElementById('resRight').textContent = score;
+  document.getElementById('resWrong').textContent = total-score;
+  document.getElementById('resTotal').textContent = total;
+
+  const letters = ['A','B','C','D','E'];
+  const rl = document.getElementById('reviewList');
+  rl.innerHTML = '';
+  userAnswers.forEach((a,i) => {
+    const ok = a.chosen === a.correct;
+    const div = document.createElement('div');
+    div.className = 'review-item '+(ok?'r-correct':'r-wrong');
+    div.innerHTML = `
+      <div class="review-q"><b>Q${i+1}.</b> ${a.q}</div>
+      <div class="review-answers">
+        <div class="review-your ${ok?'ok':''}">Your answer: ${letters[a.chosen]} — ${a.opts[a.chosen]}</div>
+        ${!ok?`<div class="review-correct">Correct: ${letters[a.correct]} — ${a.opts[a.correct]}</div>`:''}
+      </div>
+      <div class="review-icon">${ok?'✅':'❌'}</div>`;
+    rl.appendChild(div);
+  });
+}
+
+function retryQuiz() { startQuiz(currentMode); }
+function goHome() { show('welcome'); }
+function show(id) {
+  ['welcome','quiz','results'].forEach(s => document.getElementById(s).style.display = s===id?(s==='quiz'?'block':'flex'):'none');
+  if(id==='results') document.getElementById('results').style.display='block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
