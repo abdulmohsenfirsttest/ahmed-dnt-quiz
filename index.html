@@ -33,6 +33,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0;
 #quiz-home { display: none; max-width: 500px; margin: 0 auto; padding: 40px 20px; text-align: center; }
 .qh-back { background: none; border: 1px solid #334155; color: #94a3b8; padding: 7px 16px; border-radius: 8px; cursor: pointer; font-size: .85rem; margin-bottom: 32px; }
 .qh-back:hover { border-color: #64748b; color: #e2e8f0; }
+.subject-badge { display: inline-block; background: #1a0f2e; border: 2px solid #a855f7; border-radius: 12px; padding: 10px 28px; font-size: 1.4rem; font-weight: 800; color: #c084fc; margin-bottom: 12px; letter-spacing: .03em; direction: rtl; }
 .qh-icon { font-size: 3.5rem; margin-bottom: 12px; }
 .qh-title { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
 .qh-sub { color: #64748b; font-size: .9rem; margin-bottom: 36px; }
@@ -159,6 +160,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0;
   <button class="qh-back" onclick="goPortal()">← Back</button>
   <div class="qh-icon" id="qhIcon"></div>
   <div class="qh-title" id="qhTitle"></div>
+  <div class="subject-badge" id="subjectBadge" style="display:none"></div>
   <div class="qh-sub" id="qhSub"></div>
   <div class="mode-grid">
     <button class="mode-btn m-easy"   onclick="startQuiz('easy')">Easy<span class="mc" id="cntEasy"></span></button>
@@ -582,9 +584,10 @@ const QUIZZES = {
     hard:   BUHAIMED_HARD
   },
   abdulmohsen: {
-    icon: '🧪',
+    icon: '📖',
     title: 'Abdulmohsen Quiz',
-    sub: 'Questions Bank',
+    sub: 'فقه العبادات والأسرة',
+    subject: 'فقه',
     color: '#c084fc',
     easy:   ABDULMOHSEN_EASY,
     medium: ABDULMOHSEN_MEDIUM,
@@ -621,6 +624,9 @@ function openQuiz(key) {
   document.getElementById('qhTitle').textContent = qz.title;
   document.getElementById('qhSub').textContent   = qz.sub;
   document.getElementById('qhTitle').style.color = qz.color;
+  const badge = document.getElementById('subjectBadge');
+  if (qz.subject) { badge.textContent = qz.subject; badge.style.display = 'inline-block'; }
+  else { badge.style.display = 'none'; }
 
   const e = qz.easy.length, m = qz.medium.length, h = qz.hard.length;
   document.getElementById('cntEasy').textContent   = e + ' Questions';
